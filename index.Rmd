@@ -1,0 +1,157 @@
+---
+title: "PSY6422 Data Management and Visualisation"
+author: "Molly Jackson"
+date: "June 2021"
+output: html_document
+---
+
+## **World Happiness Report 2018:** 
+##  <span style="color:deeppink">How do factors contributing to happiness differ between Finland, Norway, Denmark, and Iceland, vs Tanzania, South Sudan, the Central African Republic, and Burundi?</span>
+
+### **Background, Motivation & Aims**
+The [World Happiness Report](https://en.wikipedia.org/wiki/World_Happiness_Report), first published in 2012, uses data collected in the [Gallup World Poll](https://www.gallup.com/178667/gallup-world-poll-work.aspx) (GWP) to survey the state of global [happiness](https://en.wikipedia.org/wiki/Happiness).
+
+Ranking 156 countries on their perceived level of happiness, the report also [estimates](https://en.wikipedia.org/wiki/Estimation) the extent to which certain factors contribute to these scores, including: 
+
+
+1. [GDP per capita](https://www.investopedia.com/terms/p/per-capita-gdp.asp)
+
+2. [Social support](https://en.wikipedia.org/wiki/Social_support)
+
+3. [Healthy life expectancy](https://en.wikipedia.org/wiki/Life_expectancy)
+
+4. [Freedom to make life choices](https://en.wikipedia.org/wiki/Freedom_of_choice) 
+
+5. [Generosity](https://en.wikipedia.org/wiki/Generosity) 
+
+6. [Perceptions of corruption](https://en.wikipedia.org/wiki/Corruption)
+
+
+Findings are recognised by [governments](https://en.wikipedia.org/wiki/Government) and [organisations](https://en.wikipedia.org/wiki/Organization) worldwide as happiness indicators help to shape [public policy decisions](https://www.encyclopedia.com/environment/educational-magazines/public-policy-decision-making), including in important fields such as [health care](https://en.wikipedia.org/wiki/Health_care).
+
+The data can also be used to assess the [well-being](https://en.wikipedia.org/wiki/Well-being) progress of [nations](https://en.wikipedia.org/wiki/Nation), and explain international variations of happiness using annual publications.
+
+The current project however aims to use data from 2018 to compare factors contributing to happiness in the top 4 ranking countries, [Finland](https://en.wikipedia.org/wiki/Finland), [Norway](https://en.wikipedia.org/wiki/Norway), [Denmark](https://en.wikipedia.org/wiki/Denmark), and [Iceland](https://en.wikipedia.org/wiki/Iceland), vs the bottom 4 ranking countries, [Tanzania](https://en.wikipedia.org/wiki/Tanzania), [South Sudan](https://en.wikipedia.org/wiki/South_Sudan), the [Central African Republic](https://en.wikipedia.org/wiki/Central_African_Republic), and [Burundi](https://en.wikipedia.org/wiki/Burundi).
+
+With the top 4 countries all being [Nordic](https://en.wikipedia.org/wiki/Nordic_countries), and the bottom 4 all being countries of [Africa](https://en.wikipedia.org/wiki/Africa), it will be interesting to compare the extent to which these factors contributing to happiness differ by regions of the world.
+
+
+### **Data Origin** 
+[Raw data](https://en.wikipedia.org/wiki/Raw_data) was collected as part of the World Happiness Report 2018 and uploaded to [Kaggle](https://www.kaggle.com/unsdsn/world-happiness).
+
+```{r}
+data_happinessdata = read.csv("twentyeighteen.csv")   #loads the data
+```
+
+```{r}
+head(data_happinessdata,4)   #shows first 4 rows 
+tail(data_happinessdata,4)   #shows last 4 rows
+```
+
+[Variables](https://www.scribbr.com/methodology/types-of-variables/) were the perceived happiness score of each country and six contributing factors, [measured as follows](https://worldhappiness.report/ed/2019/changing-world-happiness/):
+
+**Happiness score:** National [average](https://en.wikipedia.org/wiki/Average) of responses to the main life evaluation question in the GWP, known as the [Cantril Ladder](https://news.gallup.com/poll/122453/understanding-gallup-uses-cantril-scale.aspx).
+
+**GDP per capita:** Calculated in terms of [Purchasing Power Parity](https://en.wikipedia.org/wiki/Purchasing_power_parity) taken from [World Development Indicators](https://en.wikipedia.org/wiki/World_Development_Indicators) between 2017 and 2018.
+
+**Social support:** National average of [binary](https://en.wikipedia.org/wiki/Binary_number) responses (0 or 1) to GWP question "If you were in trouble, do you have relatives or friends you can count on whenever you need them, or not?"
+
+**Healthy life expectancy:** Constructed based on data from the [World Health Organisation Global Health Observatory data repository](https://en.wikipedia.org/wiki/Global_Health_Observatory).
+
+**Freedom to make life choices:** National average of responses to GWP question "Are you satisfied or dissatisfied with your freedom to choose what you do with your life?" 
+
+**Generosity:** [Residual of regressing](https://en.wikipedia.org/wiki/Regression_analysis) the national average of GWP responses to "Have you donated money to a charity in the past month?"
+
+**Perceptions of corruption:** Average of binary responses (0 or 1) "Is corruption widespread throughout the government or not?” and “Is corruption widespread within businesses or not?” from the GWP.
+
+### **Data Preparation**
+Relevant packages were installed and retrieved
+```{r}
+library(tidyverse)   #retrieves packages from item library
+```
+
+Data was then reorganised to include only the relevant countries  
+```{r}
+tophappy <- head(data_happinessdata,4)   #isolates data for top 4 countries
+bottomhappy <- tail(data_happinessdata,4)   #isolates data for bottom 4 countries 
+topbottomhappy <- rbind(tophappy, bottomhappy) #combines data from top and bottom 4 countries into one data frame
+```
+
+### **Visualisation 1**
+Happiness scores were then plotted using a bar chart to compare the overall response of each country
+```{r}
+topbottomhappy <- as.data.frame(topbottomhappy)   #ensures data is in a data frame 
+
+happyplot <- ggplot(data = topbottomhappy,   #identifies data to use, saves basis of plot
+          aes(x = reorder(Country.or.region, -Score), y = as.numeric(Score), fill = reorder(Country.or.region, -Score))) +   #identifies data mapping, reorders x axis highest-lowest, states fill content for colours later 
+  
+  geom_bar(stat = "identity", colour = "darkblue", width = 0.9) +   #plots data as a bar chart, identifies colour of bar outline, specifies bar width 
+  ggtitle("Top and bottom four countries ranked on happiness") +   #adds graph title
+  labs(x = "Country", y = "Happiness Score", fill = "Country") +  #labels x and y axis, sets legend title 
+  theme(axis.text.x=element_blank()) +  #removes country names on x axis 
+  scale_fill_manual(values = c("yellow", "greenyellow", "darkseagreen3", "turquoise", "lightsteelblue", "mediumpurple1", "deepskyblue1", "cornflowerblue"))  #assigns colours to each bar representing a country
+
+print(happyplot)   #produces graph output
+```
+
+
+As you can see, happiness scores obtained in the Nordic countries were more than double those in African countries.
+
+To further break this down, factors contributing to happiness were then also plotted using a bar chart.
+
+
+### **Visualisation 2**
+
+```{r, fig.width=14, fig.height=10}
+ 
+happyfactors = subset(topbottomhappy, select = -c(1,3) )  #creates data subset for factors, removes unwanted columns
+happyfactordata <- gather(happyfactors, Factors, Score, -Country.or.region, factor_key = TRUE) #sets up score to mean column values, assigns relevant columns to factors
+happyfactordata$index <- as.numeric(row.names(happyfactordata))  #orders plotting of factors
+
+topbottomfactors <- ggplot(data = happyfactordata,  #identifies data to use, saves basis of plot
+          aes(x = Factors, y = as.numeric(Score), fill = reorder(Country.or.region, index))) +  #identifies data mapping, states fill content for colours later 
+  geom_bar(stat = "identity", position = "dodge2", colour = "darkblue", width = 0.8) + #plots data as a bar chart, adds spaces between groups, identifies colour of bar outline, specifies bar width   
+  ggtitle("Factors contributing to happiness in the top and bottom four ranked countries") +  #adds graph title
+  labs(x = "Happiness Factors", y = "Score", fill = "Country") +  #adds x and y axis labels, sets legend title
+  theme(axis.text.x=element_text(angle = 20, size=14)) +  #adds factor labels on x axis at an angle, sets text size
+  theme(axis.title = element_text(size = 20)) +  #sets x and y axis text size 
+  theme(plot.title = element_text(size = 22)) +  #sets title text size
+  theme(legend.text = element_text(size = 12)) +  #sets legend text size
+  theme(legend.title = element_text(size = 16)) +  #sets legend title text size 
+  scale_fill_manual(values = c("yellow", "greenyellow", "darkseagreen3", "turquoise", "lightsteelblue", "mediumpurple1", "deepskyblue1", "cornflowerblue"))   #assigns colours to each bar representing a country
+
+print(topbottomfactors)  #produces graph output
+```
+
+
+### **Results** 
+
+Looking at the data, it is evident that social support is the greatest contributing factor to perceived levels of happiness in all countries except the Central African Republic, in which they did not feel they had any. 
+
+The factor contributing least however was not the same across both sets of countries. In Nordic countries, generosity contributed the least, whereas in African countries, it was perceptions of corruption.
+
+Furthermore, GDP per capita and healthy life expectancy were estimated to contribute greatly to happiness in the Nordic countries, followed by freedom to make life choices, whereas this was not the case in African countries, which can likely be explained by a number of reasons.
+
+For example, Nordic countries have more resources available to them, such as [iron ore](https://en.wikipedia.org/wiki/Iron_ore), enabling them to generate more economic and social opportunities in comparison to other countries, such as those in Africa. 
+
+The profits from these resources can be invested into education, health care, and housing, improving overall life expectancy, strengthening the public sector, and subsequently increasing GDP per capita. This additionally creates more opportunities for people living in countries such as Norway, in comparison to countries such as Burundi, whereby these opportunities are very minimal, therefore limiting their freedom to make life choices contributing to their happiness, as observed in the data above. 
+
+
+### **Summary**
+
+#### What I have learned:
+
+I have learned the fundamentals of coding and how to use these principles to produce a data visualisation piece in RStudio using R Markdown. At the start of this module, my knowledge of coding was almost nothing, and therefore everything I have managed to achieve in this project has been the result of this course.
+
+
+The main thing I will take away from this experience however is that coding requires patience, just because something failed to work the first few times does not mean it will never work. It may only need some small changes and you will get there eventually, and trial and error is also part of the process, helping you to better understand your code in the long run. 
+
+#### What I would do next time:
+
+With more time and experience, if I were to complete this type of data visualisation again, for example using 2021 World Happiness Report data, I would make the [bar charts animated](https://towardsdatascience.com/https-towardsdatascience-com-everything-you-need-to-know-about-animated-bar-charts-be033f398619), i.e. have them appear one by one, as to make my graphs more engaging and visually pleasing.
+
+
+I would also consider reproducing the visualisation produced by the World Happiness Report itself, using a horizontal bar chart for each country with proportional blocks of colour to represent the degree to which each factor has contributed to happiness.
+
+
+Furthermore, it would also make sense to plot the data from 2019, 2020, and 2021 in response to the [COVID-19 global pandemic](https://en.wikipedia.org/wiki/COVID-19_pandemic). Using data from 2019 as a reference point, it would be interesting to see whether the social impacts observed in 2020 and 2021 caused happiness scores to be lower in [countries with a higher death toll](https://covid19.who.int) than those observed in 2019. 
